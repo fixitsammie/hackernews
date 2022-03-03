@@ -24,7 +24,7 @@ class Story(models.Model):
         return super(Story, self).save(*args, **kwargs)
 
 
-class Comment(models.Model):
+class Comm(models.Model):
     hn_id = models.CharField()
     name = models.CharField()
     news = models.ForeignKey(Story, related_name="children", on_delete=models.CASCADE)
@@ -70,9 +70,19 @@ Genre.objects.create(name="Hard Rock", parent=rock)
 Genre.objects.create(name="Pop Rock", parent=rock)
 """
 
-class Genre(MPTTModel):
+class Comment(MPTTModel):
     name = models.CharField(max_length=50, unique=True)
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
-    comment = models.ForeignKey(Comment, related_name="comments", on_delete=models.CASCADE,blank=True,null=True)
+    news = models.ForeignKey(Story, related_name="comments", on_delete=models.CASCADE,blank=True,null=True)
+    created = models.CharField(max_length=200)
+    hn_id = models.CharField(max_length=200)
+    time = models.CharField(max_length=200)
+    type = models.CharField(max_length=100)
+    text = models.CharField(max_length=2000)
+    hn_parent = models.CharField(max_length=200)
+    kids = models.CharField(max_length=400)
+    created = models.DateTimeField()
+    updated = models.DateTimeField()
+
     class MPTTMeta:
         order_insertion_by = ['name']

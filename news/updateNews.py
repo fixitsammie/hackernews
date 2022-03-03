@@ -48,10 +48,6 @@ top_stories_url = "https://hacker-news.firebaseio.com/v0/topstories.json?print=p
 top_news_stories = "https://hacker-news.firebaseio.com/v0/showstories.json?print=pretty"
 def _get_news_json():
     url = top_news_stories
-    encoded_city_name = 'Los%20Angeles'
-    country_code = 'us'
-    access_token = 'your_access_token'
-
     r = requests.get(url)
 
     try:
@@ -80,14 +76,13 @@ def update_news():
                 )
                 new_story.save()
                 if new_story:
-                    update_kids(json['kids'],json['id'])
-                # open weather map gives temps in Kelvin. We want celsius.
+                    update_kids(json['kids'],new_story)
+
                 new_story.created = datetime.datetime.now()
                 new_story.score = json['time']
                 new_story.hn_id = json['id']
                 #TODO convert time to timestamp object
                 new_story.save()
-                print("saving...\n" + new_story)
             except:
                 pass
 
@@ -102,18 +97,24 @@ def get_kid(kid_id):
         return None
 
 
-def update_kids(kids,parent):
+def update_kids(kids,parent_object):
     for kid in kids:
         kid_object = get_kid(kid)
-        if kid_object and kid_object['kids']:
-            update_kids(kids = kid_object.kids, parent = kid)
-        save_comment(kid,parent)
+        if kid_object:
+            parent_object = save_comment(kid_object, parent_object)
+        if kid_object and kid_object['kids'] and parent_object:
+            update_kids(kids = kid_object.kids, parent_object = parent_object)
+
 
 
 def save_comment(kid,parent):
+    """parent is an instance of Story model, kid is a json object"""
     if not Comment.objects.exists(hn_id = kid['id']):
         comment = Comment(
-            name ='',
-            hn_id = ''
+            text =kid['text'],
+            hn_id = kid['text'],
+            parent=parent
         )
         comment.save()
+        return comment
+    return None
