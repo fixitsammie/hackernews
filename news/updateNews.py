@@ -56,9 +56,7 @@ def _get_news_json():
     except:
         return None
 
-
-def update_news():
-    json = _get_news_json()
+def single_news(json={}):
     if json is not None:
         if not Story.objects.exists(hn_id = json['id']):
             try:
@@ -95,6 +93,11 @@ def get_kid(kid_id):
         return r.json()
     except:
         return None
+
+def update_news():
+    json = _get_news_json()
+    map(single_news,json)
+    
 
 
 def update_kids(kids,parent_object):

@@ -7,27 +7,28 @@ from datetime import datetime
 
 
 class Story(models.Model):
-    # TODO set updated field as auto_now_add
-    created = models.DateTimeField()
-    updated = models.DateTimeField()
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
     score = models.IntegerField()
     hacker_news_item = models.BooleanField()
     creator = models.CharField(max_length=1000)
-    hn_id = models.CharField(max_length=200)
+    text = models.CharField(max_length=2000)
+    hn_id = models.CharField(max_length=200,blank=True)
     url = models.CharField(max_length=2000)
     type = models.CharField(max_length=200)
     time = models.CharField(max_length=200)
+    hacker_news_time = models.DateTimeField()
+
+    def __str__(self):
+          return self.text
+
+    
 
     def save(self, *args, **kwargs):
-        if not self.id:
-            self.timestamp = datetime.utcnow()
+        if not self.id:       
+              self.hacker_news_time = datetime.fromtimestamp(int(self.time)) 
         return super(Story, self).save(*args, **kwargs)
 
-
-class Comm(models.Model):
-    hn_id = models.CharField()
-    name = models.CharField()
-    news = models.ForeignKey(Story, related_name="children", on_delete=models.CASCADE)
 
 
 """Comments of Comments are stored as Reply"""
@@ -50,17 +51,6 @@ class Comm(models.Model):
   "time": 1314211127,
   "type": "comment"
 }"""
-class Reply(models.Model):
-    comment = models.ForeignKey(Comment, related_name="replies", on_delete=models.CASCADE)
-    created = models. CharField(max_length=200)
-    hn_id = models.CharField(max_length=200)
-    time = models.CharField(max_length=200)
-    type = models.CharField(max_length=100)
-    text = models.CharField(max_length=2000)
-    hn_parent = models.CharField(max_length=200
-                                 )
-    kids = models.CharField(max_length=400)
-
 
 """
 from myapp.models import Genre
@@ -74,15 +64,20 @@ class Comment(MPTTModel):
     name = models.CharField(max_length=50, unique=True)
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
     news = models.ForeignKey(Story, related_name="comments", on_delete=models.CASCADE,blank=True,null=True)
-    created = models.CharField(max_length=200)
-    hn_id = models.CharField(max_length=200)
+    hn_id = models.CharField(max_length=200,blank=True)
     time = models.CharField(max_length=200)
     type = models.CharField(max_length=100)
     text = models.CharField(max_length=2000)
-    hn_parent = models.CharField(max_length=200)
-    kids = models.CharField(max_length=400)
-    created = models.DateTimeField()
-    updated = models.DateTimeField()
+    hn_parent = models.CharField(max_length=200,blank=True)
+    kids = models.CharField(max_length=400,blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    hacker_news_time = models.DateTimeField()
 
     class MPTTMeta:
         order_insertion_by = ['name']
+    
+    def save(self, *args, **kwargs):
+        if not self.id:       
+              self.hacker_news_time = datetime.fromtimestamp(int(self.time)) 
+        return super(Comment, self).save(*args, **kwargs)
