@@ -32,7 +32,7 @@ class StoryTests(APITestCase):
 
     def test_update_hn_story(self):
         """Ensure that HN story cannot be updated"""
-        url = reverse('create-story')
+        url = reverse('story')
         data = {'name': 'New story', 'hacker_news_item': True}
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

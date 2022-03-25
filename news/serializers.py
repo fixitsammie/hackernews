@@ -4,9 +4,11 @@ from .models import Story,Comment
 from rest_framework_recursive.fields import RecursiveField
 
 class StorySerializer(serializers.HyperlinkedModelSerializer):
+    comments = serializers.HyperlinkedRelatedField(many=True, view_name='comment-detail', read_only=True)
+    id = serializers.ReadOnlyField()
     class Meta:
         model = Story
-        fields = ['url', 'hacker_news_item', 'time', 'url']
+        fields = '__all__'
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
 
@@ -22,5 +24,5 @@ class CommentTreeSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['__all__']
+        fields = '__all__'
     
